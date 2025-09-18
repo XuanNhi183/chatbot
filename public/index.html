@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; max-width: 600px; height: 400px; overflow-y: auto; }
+    textarea { width: 600px; height: 50px; }
+    button { margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h2>Chatbot</h2>
+  <div id="chat"></div>
+  <textarea id="input" placeholder="Nhập câu hỏi..."></textarea><br>
+  <button onclick="sendMessage()">Gửi</button>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("input").value.trim();
+      if (!input) return;
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input })
+      });
+
+      const data = await res.json();
+      const chatDiv = document.getElementById("chat");
+
+      chatDiv.innerHTML += `<p><b>You:</b> ${input}</p>`;
+      if (data.reply) {
+        chatDiv.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+      } else {
+        chatDiv.innerHTML += `<p style="color:red;"><b>Error:</b> ${data.error}</p>`;
+      }
+
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+      document.getElementById("input").value = "";
+    }
+  </script>
+</body>
+</html>
