@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; max-width: 600px; height: 400px; overflow-y: auto; }
+    textarea { width: 600px; height: 50px; }
+    button { margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h2>Chatbot</h2>
+  <div id="chat"></div>
+  <textarea id="input" placeholder="Nhập câu hỏi của bạn"></textarea><br>
+  <button onclick="sendMessage()">Gửi</button>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("input").value.trim();
+      if (!input) return;
+
+      const chatDiv = document.getElementById("chat");
+      chatDiv.innerHTML += `<p><b>You:</b> ${input}</p>`;
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/chat", {  
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: input })
+        });
+
+        const data = await res.json();
+        console.log("Server reply:", data); 
+
+        if (data.answer) {
+          chatDiv.innerHTML += `<p><b>Bot:</b> ${data.answer}</p>`;
+        } else {
+          chatDiv.innerHTML += `<p style="color:red;"><b>Error:</b> ${JSON.stringify(data)}</p>`;
+        }
+      } catch (err) {
+        chatDiv.innerHTML += `<p style="color:red;"><b>Error:</b> ${err}</p>`;
+      }
+
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+      document.getElementById("input").value = "";
+    }
+  </script>
+</body>
+</html>
